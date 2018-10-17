@@ -107,3 +107,15 @@ export function search(keyword,p,n){
         return Promise.resolve(res.data)
     })
 }
+//获取歌词
+export function getLyric(id){
+    let t = new Date().getTime()
+    const url = `https://api.darlin.me/music/lyric/${id}/`
+    const data = Object.assign({},{
+        jsonp:'jsonp',
+        jsonpCallback:"MusicJsonCallback",
+    })
+    return Vue.http.jsonp(url,data).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}

@@ -2,18 +2,23 @@
   <div id="app">
     <music-header></music-header>
     <tab></tab>
-    <router-view></router-view>
+    <keep-alive>
+      <router-view></router-view>
+    </keep-alive>
+    <player></player>
   </div>
 </template>
 
 <script>
 import MusicHeader from '@/components/musicHeader'
 import Tab from '@/components/tabs'
+import Player from '@/components/player'
 export default {
   name: 'App',
   components: {
     MusicHeader,
-    Tab
+    Tab,
+    Player
   }
 }
 </script>

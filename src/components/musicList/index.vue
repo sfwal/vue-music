@@ -21,17 +21,17 @@
             <div class="song-list-wrapper">
                 <div class="song-list">
                     <ul>
-                        <li class="item" v-for="(item,index) in songslist" :key="item.key">
+                        <li class="item" v-for="(item,index) in songslist" :key="item.key" @click="addplayer(index)">
                             <div class="rank">
                                 <span class="text">{{index+1}}</span>
                             </div>
                             <div class="content">
-                                <h2 class="name" v-if="item.songname">{{item.songname}}</h2>
-                                <h2 class="name" v-else-if="item.musicData">{{item.musicData.songname}}</h2>
-                                <h2 class="name" v-else>{{item.data.songname}}</h2>
-                                <p class="desc" v-if="item.singer"><span v-for="a in item.singer" :key="a.key">{{a.name}} . </span>{{item.albumdesc}}</p>
-                                <p class="desc" v-else-if="item.musicData"><span v-for="a in item.musicData.singer" :key="a.key">{{a.name}} . </span>{{item.musicData.albumname}}</p>
-                                <p class="desc" v-else><span v-for="a in item.data.singer" :key="a.key">{{a.name}} . </span>{{item.data.albumname}}</p>
+                                <h2 class="name">{{item.name}}</h2>
+                                <!-- <h2 class="name" v-else-if="item.musicData">{{item.musicData.songname}}</h2>
+                                <h2 class="name" v-else>{{item.data.songname}}</h2> -->
+                                <p class="desc"><span v-for="a in item.singer" :key="a.key">{{a.name}} . </span>{{item.album}}</p>
+                                <!-- <p class="desc" v-else-if="item.musicData"><span v-for="a in item.musicData.singer" :key="a.key">{{a.name}} . </span>{{item.musicData.albumname}}</p>
+                                <p class="desc" v-else><span v-for="a in item.data.singer" :key="a.key">{{a.name}} . </span>{{item.data.albumname}}</p> -->
                             </div>
                         </li>
                     </ul>
@@ -48,6 +48,7 @@
 <script>
 import Scroll from '@/components/scroll'
 import Loading from '@/components/loading'
+import {mapActions} from 'vuex'
 export default {
     props:{
         songslist:{
@@ -84,7 +85,14 @@ export default {
         },
         back(){
             this.$router.back()
-        }
+        },
+        addplayer(index){
+            this.addPlayer({
+                list:this.songslist,
+                index:index
+            })
+        },
+        ...mapActions(["addPlayer"])
     },
     computed: {
         bgImg(){
