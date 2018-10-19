@@ -1,5 +1,5 @@
 <template>
-    <div class="singer">
+    <div class="singer" ref="singer">
         <singer-list :singers="singerList"></singer-list>
         <router-view></router-view>
     </div>
@@ -8,7 +8,9 @@
 <script>
 import {getSingerList} from '@/api/api'
 import SingerList from '@/components/singerList'
+import {listMixin} from '@/common/js/mixin.js'
 export default {
+    mixins:[listMixin],
     data(){
         return{
             singerList:[]
@@ -18,6 +20,11 @@ export default {
         this.getSingerList()
     },
     methods:{
+        watchPlayList(playList){
+            if(playList.length > 0){
+                this.$refs.singer.style.bottom = '60px'
+            }
+        },
         getSingerList(){
             getSingerList().then(res => {
                 console.log(this.newSinger(res.data.list))

@@ -1,5 +1,5 @@
 <template>
-    <div class="music-list">
+    <div class="music-list" ref="musiclist">
         <!--返回上一层-->
         <div class="back" @click="back">
             <i class="icon-back"></i>
@@ -10,7 +10,7 @@
             <div class="play-wrapper">
                 <div ref="playBtn" class="play">
                 <i class="icon-play"></i>
-                <span class="text">随机播放全部</span>
+                <span class="text" @click="addplay">随机播放全部</span>
                 </div>
             </div>
         </div>
@@ -48,8 +48,10 @@
 <script>
 import Scroll from '@/components/scroll'
 import Loading from '@/components/loading'
-import {mapActions} from 'vuex'
+import {mapActions,mapMutations} from 'vuex'
+import {listMixin} from '@/common/js/mixin.js'
 export default {
+    mixins:[listMixin],
     props:{
         songslist:{
             type:Array,
@@ -79,6 +81,13 @@ export default {
         this.$refs.scroll.$el.style.top = `${this.bgHeight}px`
     },
     methods:{
+        watchPlayList(playList){
+            if(playList.length > 0){
+                this.$refs.musiclist.style.bottom = '60px'
+                this.$refs.scroll.$el.style.bottom = '60px'
+                this.$refs.scroll.refresh()
+            }
+        },
         scroll(pos){
             this.scrollH = pos.y
             console.log(pos.y)
@@ -92,7 +101,16 @@ export default {
                 index:index
             })
         },
-        ...mapActions(["addPlayer"])
+        addplay(){
+            let i = Math.floor(Math.random() * this.songslist.length)
+            this.addPlayer({
+                list:this.songslist,
+                index:i
+            })
+            this.changeMode(1)
+        },
+        ...mapActions(["addPlayer"]),
+        ...mapMutations(["changeMode"])
     },
     computed: {
         bgImg(){

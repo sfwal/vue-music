@@ -21,10 +21,10 @@ export default new Vuex.Store({
         fullScreen:state => state.fullScreen,
         playList:state => state.playList,
         currentIndex:state => state.currentIndex,
+        mode:state => state.mode,
         currentSong:(state) => {
             return state.playList[state.currentIndex] || {}
         } ,
-        mode:state => state.mode
     },
     mutations:{
         changePlaying(state,playing){
@@ -34,7 +34,7 @@ export default new Vuex.Store({
             state.fullScreen = fullScreen
         },
         changePlayList(state,playList){
-            state.playList = playList
+            state.playList = [...playList]
         },
         changeCurrentIndex(state,currentIndex){
             state.currentIndex = currentIndex
@@ -44,11 +44,36 @@ export default new Vuex.Store({
         }
     },
     actions:{
+        //添加歌曲
         addPlayer({commit},{list,index}){
             commit("changePlaying",true)
             commit("changeFullScreen",true)
             commit("changePlayList",list)
             commit("changeCurrentIndex",index)
+        },
+        //删除歌曲
+        delSong({commit,state},song){
+            let index = 0;
+            let playlist = state.playList;
+            let currentIndex = state.currentIndex
+            for(let i = 0; i < playlist.length;i++){
+                if(playlist[i].id == song.id){
+                    index = i
+                }
+            }
+            playlist.splice(index,1)
+            if(currentIndex == playlist.length){
+                currentIndex--
+            }
+            commit("changePlaying",true)
+            commit("changePlayList",playlist)
+            commit("changeCurrentIndex",currentIndex)
+        },
+        //清空播放列表
+        clear({commit}){
+            commit("changePlaying",false)
+            commit("changePlayList",[])
+            commit("changeCurrentIndex",-1)
         }
     }
 })

@@ -19,15 +19,18 @@
                 </div>
             </div>
         </div>
-        <scroll class="search-result" ref="searchResult" v-show="searchList.length" :listenScroll=true>
+        <scroll class="search-result" ref="searchResult" v-show="query" :listenScroll=true :pullup=true @scrollToEnd="pullUp">
             <div class="search-list">
                 <ul>
-                    <li class="search-item" v-for="item in searchList" :key="item.key">
+                    <li class="search-item" v-for="item in searchList" :key="item.key" @click="add(item)">
                         <i class="icon"></i>
                         <h6 class="text">{{item.name}}</h6>
                         <p class="subtext"><span v-for="b in item.singer" :key="b.key">{{b.name}} .</span></p>
                     </li>
                 </ul>
+                <div class="loading-wrapper" v-show="isloading" :class="{img:!isImgshow}">
+                    <loading :title="loadingTitle"></loading>
+                </div>
             </div>
         </scroll>
     </div>
@@ -36,23 +39,37 @@
 <script>
 import scroll from '@/components/scroll'
 import {getHotKey,search} from '@/api/api'
+import {mapActions} from 'vuex'
+import {listMixin} from '@/common/js/mixin.js'
+import Loading from '@/components/loading'
 export default {
+    mixins:[listMixin],
     data(){
         return{
             hotList:[],
             query:"",
             searchList:[],
             pageNum:20,
-            pageSize:1
+            pageSize:1,
+            loadingTitle:"",
+            totalNum:0,
+            isloading:false
         }
     },
     components: {
-        scroll
+        scroll,
+        Loading
     },
     created () {
         this.getHotKey()
     },
     methods: {
+        watchPlayList(playList){
+            if(playList.length > 0){
+                this.$refs.searchResult.$el.style.bottom = '60px'
+                this.$refs.searchResult.refresh()
+            }
+        },
         getHotKey(){
             getHotKey().then(res => {
                 let HotArr = [];
@@ -68,21 +85,76 @@ export default {
             this.query = val
             this.goSearch()
         },
-        search(){
-            search("beyond","2",20).then(res => {
-                console.log(res)
-            })
-        },
         clear(){
             this.query = ""
             this.searchList = []
         },
         goSearch(){
+            this.isloading = true
+            this.loadingTitle = "加载中..."
             search(this.query,this.pageSize,this.pageNum).then(res => {
-                console.log(res)
-                this.searchList = res.data.song.list
+                this.totalNum = res.data.song.totalnum
+                let list = this.editSongs(res.data.song.list)
+                this.searchList = this.searchList.concat(list)
+                this.$nextTick(() => {
+                    this.$refs.searchResult.refresh()
+                })
             })
-        }
+        },
+        pullUp(){
+            if(this.pageSize < Math.ceil(this.totalNum / this.pageNum) && this.pageNum < this.totalNum){
+                this.pageSize ++
+                this.isloading = true
+                this.loadingTitle = "加载中..."
+                setTimeout(() => {
+                    search(this.query,this.pageSize,this.pageNum).then(res => {
+                        //console.log(res)
+                            let list = this.editSongs(res.data.song.list)
+                            this.searchList = this.searchList.concat(list)
+                            this.$nextTick(() => {
+                                this.$refs.searchResult.refresh()
+                            })
+                    })
+                },2000)
+            }else{
+                this.loadingTitle = "没有更多了"
+            }
+        },
+        //对歌曲列表进行处理，获取歌曲相关的东西
+        editSongs(list){
+            let nSongsList = [];
+            for(var i=0;i<list.length;i++){
+                let item = {
+                    //歌曲ID
+                    id:list[i].id,
+                    //mid
+                    mid:list[i].mid,
+                    //歌曲名
+                    name:list[i].name,
+                    //专辑名
+                    album:list[i].album.name,
+                    //歌曲时长
+                    interval:list[i].interval,
+                    //专辑封面
+                    img:`https://y.gtimg.cn/music/photo_new/T002R300x300M000${list[i].album.mid}.jpg?max_age=2592000`,
+                    //歌曲链接
+                    url:`http://dl.stream.qqmusic.qq.com/C400${list[i].mid}/${list[i].id}.m4a?guid=983915916&fromtag=66`,
+                    //歌手
+                    singer:list[i].singer
+                }
+                nSongsList.push(item)
+            }
+            return nSongsList
+        },
+        add(item){
+            let list = []
+            list.push(item)
+            this.addPlayer({
+                list:list,
+                index:0
+            })
+        },
+        ...mapActions(["addPlayer"])
     }
 }
 </script>
@@ -223,6 +295,16 @@ export default {
             }
         }
       }
+    }
+}
+.loading-wrapper{
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    color:@color-text-d;
+    font-size: 12px;
+    .loading{
+        margin-top: 0;
     }
 }
 </style>

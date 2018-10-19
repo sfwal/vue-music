@@ -1,5 +1,5 @@
 <template>
-    <div class="recommend">
+    <div class="recommend" ref="recommend">
         <Scroll class="recommend-content" :data="songList" ref="scroll">
             <div>
                 <div class="swiper-container banner">
@@ -37,7 +37,9 @@ import {getRecommend} from '@/api/api'
 import Swiper from "swiper"
 import 'swiper/dist/css/swiper.min.css'
 import Loading from '@/components/loading'
+import {listMixin} from '@/common/js/mixin.js'
 export default {
+    mixins:[listMixin],
     data(){
         return{
             slider:[],
@@ -53,6 +55,12 @@ export default {
         this.getRecommendList();
     },
     methods:{
+        watchPlayList(playList){
+            if(playList.length > 0){
+                this.$refs.recommend.style.bottom = '60px'
+                this.$refs.scroll.refresh()
+            }
+        },
         getRecommendList:function(){
             getRecommend().then(res => {
                 console.log(res)

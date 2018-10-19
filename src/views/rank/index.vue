@@ -26,7 +26,9 @@
 import Scroll from '@/components/scroll'
 import {getRankList} from '@/api/api'
 import Loading from '@/components/loading'
+import {listMixin} from '@/common/js/mixin.js'
 export default {
+  mixins:[listMixin],
   data(){
     return{
       rankList:[],
@@ -41,6 +43,12 @@ export default {
     this.getRankList()
   },
   methods:{
+    watchPlayList(playList){
+        if(playList.length > 0){
+            this.$refs.rank.style.bottom = '60px'
+            this.$refs.topList.refresh()
+        }
+    },
     getRankList(){
       getRankList().then(res => {
         console.log(res)

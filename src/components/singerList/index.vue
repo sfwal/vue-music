@@ -28,7 +28,9 @@
 <script>
 import Scroll from '@/components/scroll'
 import Loading from '@/components/loading'
+import {listMixin} from '@/common/js/mixin.js'
 export default {
+  mixins:[listMixin],
   props:{
     singers:{
       type:Array,
@@ -60,6 +62,11 @@ export default {
     this.getLiHeight()
   },
   methods:{
+    watchPlayList(playList){
+        if(playList.length > 0){
+            this.$refs.listView.refresh()
+        }
+    },
     onTouchStart(ev){
       console.log(ev)
       //获取当前点击的下标

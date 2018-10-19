@@ -50,32 +50,32 @@
                     <div class="dot-wrapper">
                         <span class="dot"></span>
                     </div>
-                <div class="progress-wrapper">
-                    <span class="time time-l">{{formatTime}}</span>
-                    <!--播放进度条-->
-                    <div class="progress-bar-wrapper">
-                        <progressBar :percent="percent" @percentChange="percentBarChange"></progressBar>
+                    <div class="progress-wrapper">
+                        <span class="time time-l">{{formatTime}}</span>
+                        <!--播放进度条-->
+                        <div class="progress-bar-wrapper">
+                            <progressBar :percent="percent" @percentChange="percentBarChange"></progressBar>
+                        </div>
+                        <span class="time time-r">{{songTime}}</span>
                     </div>
-                    <span class="time time-r">{{songTime}}</span>
-                </div>
-                <div class="operators">
-                    <div class="icon i-left">
-                        <i :class="modeStyle" @click="onChangeMode"></i>
+                    <div class="operators">
+                        <div class="icon i-left">
+                            <i :class="modeStyle" @click="onChangeMode"></i>
+                        </div>
+                        <div class="icon i-left">
+                            <i class="icon-prev" @click="prev"></i>
+                        </div>
+                        <div class="icon i-center">
+                            <i :class="btnState" @click="changeState"></i>
+                        </div>
+                        <div class="icon i-right">
+                            <i class="icon-next" @click="next"></i>
+                        </div>
+                        <div class="icon i-right">
+                            <i class="icon-not-favorite">
+                            </i>
+                        </div>
                     </div>
-                    <div class="icon i-left">
-                        <i class="icon-prev" @click="prev"></i>
-                    </div>
-                    <div class="icon i-center">
-                        <i :class="btnState" @click="changeState"></i>
-                    </div>
-                    <div class="icon i-right">
-                        <i class="icon-next" @click="next"></i>
-                    </div>
-                    <div class="icon i-right">
-                        <i class="icon-not-favorite">
-                        </i>
-                    </div>
-                </div>
                 </div>
             </div>
         </transition>
@@ -93,13 +93,15 @@
                     <i @click.stop="changeState" :class="miniState"></i>
                 </div>
                 <div class="control">
-                    <i class="icon-playlist"></i>
+                    <i class="icon-playlist" @click.stop="showPlayList"></i>
                 </div>
             </div>
         </transition>
 
         <!-- h5音乐播放器 -->
         <audio :src="currentSong.url" ref="audio" @canplay="readyState" @error="readyState" @timeupdate="updateTime" @ended="ended"></audio>
+
+        <playList v-show="isplayList" :isShow="isplayList" @changeShow="changeshow"></playList>
     </div>
 </template>
 
@@ -112,6 +114,7 @@ import {Base64} from 'js-base64';
 import Lyric from 'lyric-parser'
 import 'swiper/dist/css/swiper.min.css'
 import Swiper from "swiper"
+import playList from '@/components/playList'
 export default {
     data(){
         return {
@@ -119,7 +122,8 @@ export default {
             currentTime:0,
             playingLyc:'',
             lyric:{},
-            currentLineNum:0
+            currentLineNum:0,
+            isplayList:false
         }
     },
     mounted() {
@@ -127,6 +131,7 @@ export default {
             pagination: {
                 el: '.dot-wrapper',
                 bulletClass : 'dot',
+                bulletActiveClass:"active"
             },
             observer:true, 
             observeParents:true
@@ -253,6 +258,8 @@ export default {
                 this.next()
             }else if(this.mode == 2){
                 this.loop()
+            }if(this.mode == 1){
+                this.next()
             }
         },
         //单曲循环方法
@@ -285,6 +292,12 @@ export default {
             }
             this.playingLyc = txt
         },
+        showPlayList(){
+            this.isplayList = true
+        },
+        changeshow(){
+            this.isplayList = false
+        },
         ...mapMutations([
             'changeFullScreen',
             'changePlaying',
@@ -315,12 +328,13 @@ export default {
     },
     components:{
         progressBar,
-        Scroll
+        Scroll,
+        playList
     }
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 @import '~@/common/less/variable.less';
 .player{
     .normal-player{
