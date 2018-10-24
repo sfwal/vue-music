@@ -273,6 +273,7 @@ export default {
         },
         //获取歌词
         getLyrics(){
+            this.lyric = {}
             getLyric(this.currentSong.id).then(res => {
                 console.log(new Lyric(Base64.decode(res.lyric)))
                 //let lyric = new Lyric(Base64.decode(res.lyric))

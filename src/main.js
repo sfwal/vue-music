@@ -6,14 +6,11 @@ import router from './router'
 import http from 'vue-resource'
 import axios from 'axios'
 import store from '@/store'
-import VueCorvova from 'vue-cordova'
 
 
 Vue.config.productionTip = false
 
 Vue.use(http)
-
-Vue.use(VueCorvova)
 
 
 /* eslint-disable no-new */
